@@ -19,7 +19,8 @@
       @blur="$v.password.$touch()"
     ></v-text-field>
     <v-btn class="mr-4" @click="submit">submit</v-btn>
-    <v-btn @click="clear">clear</v-btn>
+    <v-btn @click="clear" class="mr-4">clear</v-btn>
+    <v-btn @click="toggle">Sing Up -></v-btn>
   </form>
 </template>
 <script>
@@ -82,7 +83,6 @@
       submit () {
         this.$v.$touch()
         if(!this.$v.$anyError) {
-          const userName = this.userName;
           const mail = this.mail;
           const password = this.password;
           this.$emit('signin',{mail,password});
@@ -94,6 +94,9 @@
         this.password = ''
         this.showPW = false
       },
+      toggle (){
+        this.$emit('toggle')
+      }
     },
   }
 </script>
