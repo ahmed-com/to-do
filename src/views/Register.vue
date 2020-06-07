@@ -4,14 +4,14 @@
       <Signup
       v-if="!haveAccount"
       :isUniqueMail="true"
-      @toggle="toggle"
+      @toggle="haveAccount = true"
       @signup="signup"
       />
       <Signin
       v-if="haveAccount"
       :mailExists="true"
       :passwordCorrect="true"
-      @toggle="toggle"
+      @toggle="haveAccount = false"
       @signin="signin"
       />
     </v-container>

@@ -49,6 +49,7 @@ export default new Vuex.Store({
         data : authData.data
       })
       .then(res =>{
+        if(res.status === 422) throw new Error('mail already exists');
         commit('authUser',res);
         dispatch('createTodoList')
       });
@@ -59,6 +60,16 @@ export default new Vuex.Store({
         password : authData.password
       })
       .then(res =>{
+        if(res.status === 404){
+          const err = new Error('mail incorrect');
+          err.status = 404;
+          throw err
+        }
+        if(res.status === 401){
+          const err = new Error('password incorrect');
+          err.status = 401;
+          throw err
+        }
         commit('authUser',res);
         dispatch('fetchTodoList');
       })
