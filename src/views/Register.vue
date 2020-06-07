@@ -49,8 +49,8 @@
 </template>
 <script>
   import { required, maxLength, minLength, email, sameAs, alphaNum } from 'vuelidate/lib/validators'
-  const isUnique = (value,vm) =>{
-    return vm.isUniqueEmail(value);
+  const isUnique = (mail,vm) =>{
+    return vm.isUniqueEmail(mail);
   }
 
   export default {
@@ -120,7 +120,7 @@
         if (!this.$v.mail.$dirty) return errors
         !this.$v.mail.email && errors.push('Must be valid e-mail')
         !this.$v.mail.required && errors.push('E-mail is required')
-        !this.$v.mail.isUnique && errors.push('this E-mail is already taken')
+        !this.$v.mail.isUnique && errors.push('This E-mail is already taken')
         return errors
       },
       passwordErrors (){
@@ -143,6 +143,12 @@
     methods: {
       submit () {
         this.$v.$touch()
+        if(!this.$v.$anyError) {
+          const userName = this.userName;
+          const mail = this.mail;
+          const password = this.password;
+          this.$emit('signup',{userName,mail,password});
+        }
       },
       clear () {
         this.$v.$reset()

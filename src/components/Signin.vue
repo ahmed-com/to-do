@@ -1,0 +1,115 @@
+<template>
+  <form>
+    <v-text-field
+      v-model="mail"
+      :error-messages="emailErrors"
+      label="E-mail"
+      hint="E.g. test@test.com"
+      @blur="$v.mail.$touch()"
+    ></v-text-field>
+    <v-text-field
+      v-model="password"
+      :append-icon="showPW ? 'mdi-eye' : 'mdi-eye-off'"
+      :type="showPW ? 'text' : 'password'"
+      label="Password"
+      hint="Between 5 and 14 characters"
+      counter
+      :error-messages="passwordErrors"
+      @click:append="showPW = !showPW"
+      @blur="$v.password.$touch()"
+    ></v-text-field>
+    <v-btn class="mr-4" @click="submit">submit</v-btn>
+    <v-btn @click="clear">clear</v-btn>
+  </form>
+</template>
+<script>
+  import { required, maxLength, minLength, email } from 'vuelidate/lib/validators'
+  const exists = (mail,vm) =>{
+      return vm.mailExists(mail);
+  }
+  const correct = (password,vm) =>{
+      return vm.passwordCorrect(password)
+  }
+
+  export default {
+    
+    props: {
+      mailExists : {
+        type : Function,
+        required : false,
+        default : function(){
+          return new Promise(resolve=>{
+            resolve(true)
+          })
+        }
+      },
+      passwordCorrect : {
+          type : Function,
+          required : false,
+          default : function(){
+              return new Promise(resolve=>{
+                  resolve(true);
+              });
+          }
+      }
+    },
+
+    validations: {
+      mail: { 
+        required, 
+        email,
+        exists
+      },
+      password : {
+        required,
+        minLen : minLength(5),
+        maxLen : maxLength(14),
+        correct
+      }
+    },
+
+    data: () => ({
+      mail: '',
+      password : '',
+      showPW : false
+    }),
+
+    computed: {
+      emailErrors () {
+        const errors = []
+        if (!this.$v.mail.$dirty) return errors
+        !this.$v.mail.email && errors.push('Must be valid e-mail')
+        !this.$v.mail.required && errors.push('E-mail is required')
+        !this.$v.mail.exists && errors.push('E-mail incorrect')
+        return errors
+      },
+      passwordErrors (){
+        const errors = []
+        if (!this.$v.password.$dirty) return errors
+        !this.$v.password.required && errors.push('Password is required')
+        !this.$v.password.minLen && errors.push('Password should be atleast 5 charcters long')
+        !this.$v.password.maxLen && errors.push('Password should be atmost 14 charcters long')
+        !this.$v.password.correct && errors.push('Password incorrect')
+        return errors
+      }
+    },
+
+    methods: {
+      submit () {
+        this.$v.$touch()
+        if(!this.$v.$anyError) {
+          const userName = this.userName;
+          const mail = this.mail;
+          const password = this.password;
+          this.$emit('signin',{mail,password});
+        }
+      },
+      clear () {
+        this.$v.$reset()
+        this.mail = ''
+        this.password = ''
+        this.showPW = false
+      },
+    },
+  }
+</script>
