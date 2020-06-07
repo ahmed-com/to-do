@@ -24,47 +24,31 @@
 </template>
 <script>
   import { required, maxLength, minLength, email } from 'vuelidate/lib/validators'
-  const exists = (mail,vm) =>{
-      return vm.mailExists(mail);
-  }
-  const correct = (password,vm) =>{
-      return vm.passwordCorrect(password)
-  }
 
   export default {
     
     props: {
       mailExists : {
-        type : Function,
+        type : Boolean,
         required : false,
-        default : function(){
-          return new Promise(resolve=>{
-            resolve(true)
-          })
-        }
+        default : true
       },
       passwordCorrect : {
-          type : Function,
+          type : Boolean,
           required : false,
-          default : function(){
-              return new Promise(resolve=>{
-                  resolve(true);
-              });
-          }
+          default : true
       }
     },
 
     validations: {
       mail: { 
         required, 
-        email,
-        exists
+        email
       },
       password : {
         required,
         minLen : minLength(5),
-        maxLen : maxLength(14),
-        correct
+        maxLen : maxLength(14)
       }
     },
 
@@ -80,7 +64,7 @@
         if (!this.$v.mail.$dirty) return errors
         !this.$v.mail.email && errors.push('Must be valid e-mail')
         !this.$v.mail.required && errors.push('E-mail is required')
-        !this.$v.mail.exists && errors.push('E-mail incorrect')
+        !this.mailExists && errors.push('E-mail incorrect')
         return errors
       },
       passwordErrors (){
@@ -89,7 +73,7 @@
         !this.$v.password.required && errors.push('Password is required')
         !this.$v.password.minLen && errors.push('Password should be atleast 5 charcters long')
         !this.$v.password.maxLen && errors.push('Password should be atmost 14 charcters long')
-        !this.$v.password.correct && errors.push('Password incorrect')
+        !this.passwordCorrect && errors.push('Password incorrect')
         return errors
       }
     },

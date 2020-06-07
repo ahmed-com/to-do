@@ -49,21 +49,14 @@
 </template>
 <script>
   import { required, maxLength, minLength, email, sameAs, alphaNum } from 'vuelidate/lib/validators'
-  const isUnique = (mail,vm) =>{
-    return vm.isUniqueEmail(mail);
-  }
 
   export default {
     
     props: {
       isUniqueEmail : {
-        type : Function,
+        type : Boolean,
         required : false,
-        default : function(){
-          return new Promise(resolve=>{
-            resolve(true)
-          })
-        }
+        default : true
       }
     },
 
@@ -71,8 +64,7 @@
       userName: { required, alphaNum,maxLength: maxLength(10) },
       mail: { 
         required, 
-        email,
-        isUnique
+        email
       },
       checkbox: {
         checked (val) {
@@ -120,7 +112,7 @@
         if (!this.$v.mail.$dirty) return errors
         !this.$v.mail.email && errors.push('Must be valid e-mail')
         !this.$v.mail.required && errors.push('E-mail is required')
-        !this.$v.mail.isUnique && errors.push('This E-mail is already taken')
+        !this.isUniqueEmail && errors.push('This E-mail is already taken')
         return errors
       },
       passwordErrors (){
