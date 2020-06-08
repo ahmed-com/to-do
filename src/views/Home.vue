@@ -15,7 +15,8 @@
       
       <v-container fluid>
         <p>the container</p>
-        
+          <TodoList :todoList="todoList"/>
+          <TodoForm @createTodo="createTodo"/>
         <router-view></router-view>
       </v-container>
     </v-content>
@@ -27,10 +28,24 @@
 </template>
 
 <script>
-// @ is an alias to /src
-
+import TodoList from '@/components/TodoList'
+import TodoForm from '@/components/TodoForm'
 
 export default {
-  
+  computed : {
+    todoList(){
+      return this.$store.state.todos
+    }
+  },
+  components : {
+    TodoList,
+    TodoForm
+  },
+  methods : {
+    createTodo(todoTxt){
+      const todo = JSON.stringify({text : todoTxt, icon : 'mdi-clock'});
+      this.$store.dispatch('createTodo',todo);
+    }
+  }
 }
 </script>

@@ -42,7 +42,6 @@ export default {
     signup(authData){
       const vm = this;
       this.$store.dispatch('signUp',authData)
-      .then(()=>console.log('sign up succeded'))
       .catch(statusCode=>{
         if(statusCode === 422) vm.isUniqueMail = false;
       })
@@ -50,7 +49,6 @@ export default {
     signin (authData){
       const vm = this;
       this.$store.dispatch('signIn',authData)
-      .then(()=> console.log('sign in succeded'))
       .catch(statusCode=>{
         if(statusCode === 404) vm.mailExists = false;
         if(statusCode === 401) {
