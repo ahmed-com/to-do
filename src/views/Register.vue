@@ -40,16 +40,24 @@ export default {
       this.passwordCorrect = true;
     },
     signup(authData){
-      // the sign up logic
+      const vm = this;
       this.$store.dispatch('signUp',authData)
       .then(()=>console.log('sign up succeded'))
-      .catch(console.log)
+      .catch(statusCode=>{
+        if(statusCode === 422) vm.isUniqueMail = false;
+      })
     },
     signin (authData){
-      // the sign in logic
+      const vm = this;
       this.$store.dispatch('signIn',authData)
       .then(()=> console.log('sign in succeded'))
-      .catch(console.log)
+      .catch(statusCode=>{
+        if(statusCode === 404) vm.mailExists = false;
+        if(statusCode === 401) {
+          vm.mailExists = true
+          vm.passwordCorrect = false
+        }
+      })
     }
   }
 }
