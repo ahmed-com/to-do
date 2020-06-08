@@ -41,73 +41,91 @@ export default new Vuex.Store({
     }
   },
   actions: {
+
     signUp({commit,dispatch},authData){
-      axios.post('/user/signup',{
-        mail : authData.mail,
-        password : authData.password,
-        userName : authData.userName,
-        data : authData.data
-      })
-      .then(res =>{
-        if(res.status === 422) throw new Error('mail already exists');
-        commit('authUser',res);
-        dispatch('createTodoList')
+      return new Promise((resolve,reject)=>{
+        axios.post('/user/signup',{
+          mail : authData.mail,
+          password : authData.password,
+          userName : authData.userName,
+          data : authData.data || JSON.stringify({})
+        })
+        .then(res =>{
+          commit('authUser',res.data);
+          dispatch('createTodoList',{resolve,reject})
+        })
+        .catch(err=>{
+          reject(err.response.status);
+        })
       });
     },
+
     signIn({commit,dispatch},authData){
-      axios.post('/user/signin',{
-        mail : authData.mail,
-        password : authData.password
-      })
-      .then(res =>{
-        if(res.status === 404){
-          const err = new Error('mail incorrect');
-          err.status = 404;
-          throw err
-        }
-        if(res.status === 401){
-          const err = new Error('password incorrect');
-          err.status = 401;
-          throw err
-        }
-        commit('authUser',res);
-        dispatch('fetchTodoList');
+      return new Promise((resolve,reject)=>{
+        axios.post('/user/signin',{
+          mail : authData.mail,
+          password : authData.password
+        })
+        .then(res =>{        
+          commit('authUser',res.data);
+          dispatch('fetchTodoList',{resolve,reject});
+        })
+        .catch(err=>{
+          reject(err.response.status);
+        })
       })
     },
-    updateUser({commit},data){
+
+    updateUser({commit},{data,resolve,reject}){
       axios.put('/user/update',{data})
       .then(()=>{
         commit('updateUser',data);
-      });
+        resolve();
+      })
+      .catch(err=>{
+        reject(err.response.status);
+      })
     },
+
     signOut({commit}){
       commit('clearState');
     },
-    createTodoList({state,commit}){
-      axios.post('/room',{data : {}})
-      .then(res =>{
-        const listId = res.room.id;
-        const updatedUserData = {...state.user.data,listId};
-        commit('updateUser',updatedUserData);
+
+    createTodoList({state,dispatch},{resolve,reject}){
+      axios.post('/room',{data : JSON.stringify({"name":"to-do list"})})
+      .then(res =>{        
+        const listId = res.data.room.id;
+        const updatedUserData = {...state.user.data,listId};        
+        dispatch('updateUser',{data : JSON.stringify(updatedUserData),resolve,reject});
+      })
+      .catch(err=>{
+        reject(err.response);
       })
     },
-    fetchTodoList({state,commit}){
+
+    fetchTodoList({state,commit},{resolve,reject}){
       axios.post('/records',{
         room : state.user.data.listId
       })
       .then(res=>{
-        commit('initTodos',res.records);
+        commit('initTodos',res.data.records);
+        resolve()
       })
+      .catch(err=>{
+        reject(err.response.status);
+      });
     },
+
     createTodo({commit,state},data){
       axios.post('/record',{
         room : state.user.data.listId,
         data
       })
       .then(res=>{
-        commit('addTodo',res.record);
+        commit('addTodo',res.data.record);
       })
     },
+
     updateTodo({commit,state},{data,index,id}){
       axios.put('/record',{
         room : state.user.data.listId,
@@ -118,6 +136,7 @@ export default new Vuex.Store({
         commit('updateTodo',{index,data});
       })
     }
+
   },
   modules: {
   }

@@ -8,9 +8,9 @@
 import Register from '@/views/Register';
 
 export default {
-  data(){
-    return {
-      auth : this.$store.state.auth
+  computed : {
+    auth(){
+      return this.$store.state.auth
     }
   },
   components : {

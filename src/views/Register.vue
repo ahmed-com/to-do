@@ -3,15 +3,15 @@
     <v-container>
       <Signup
       v-if="!haveAccount"
-      :isUniqueMail="true"
-      @toggle="haveAccount = true"
+      :isUniqueMail="isUniqueMail"
+      @toggle="toggle"
       @signup="signup"
       />
       <Signin
       v-if="haveAccount"
-      :mailExists="true"
-      :passwordCorrect="true"
-      @toggle="haveAccount = false"
+      :mailExists="mailExists"
+      :passwordCorrect="passwordCorrect"
+      @toggle="toggle"
       @signin="signin"
       />
     </v-container>
@@ -23,11 +23,34 @@ import Signin from '@/components/Signin'
 
 export default {
   data : ()=>({
-    haveAccount : false
+    haveAccount : false,
+    isUniqueMail : true,
+    mailExists : true,
+    passwordCorrect : true
   }),
   components : {
     Signup,
     Signin
+  },
+  methods : {
+    toggle(){
+      this.haveAccount = !this.haveAccount;
+      this.isUniqueMail = true;
+      this.mailExists = true;
+      this.passwordCorrect = true;
+    },
+    signup(authData){
+      // the sign up logic
+      this.$store.dispatch('signUp',authData)
+      .then(()=>console.log('sign up succeded'))
+      .catch(console.log)
+    },
+    signin (authData){
+      // the sign in logic
+      this.$store.dispatch('signIn',authData)
+      .then(()=> console.log('sign in succeded'))
+      .catch(console.log)
+    }
   }
 }
 </script>
